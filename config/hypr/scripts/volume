@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+getHumanReadableVolume() {
+  echo "$(wpctl get-volume @DEFAULT_SINK@ | sed --regexp-extended 's/((0)\.)|(\.)//')%"
+}
+
+notify() {
+  dunstify -u low -h string:x-dunst-stack-tag:obvolume "$(getHumanReadableVolume)"
+}
+
+function microph() {
+  wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+  dunstify "$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@)" | cut -d'[' -f5
+
+  
+  # if [ $muted -eq 0 ]; then 
+  #     dunstify "Unmuted" 
+   #    muted= 1
+   #  else
+   #    wpctl set-mute @default_audio_source@ 1 
+   #    dunstify "Muted"
+   #    muted= 0
+   # fi
+ }
+
+increase() {
+  wpctl set-volume @DEFAULT_SINK@ 5%+
+  notify
+}
+
+decrease() {
+  wpctl set-volume @DEFAULT_SINK@ 5%-
+  notify
+}
+
+if [ $1 = 'incr' ]; then
+  increase
+elif [ $1 = 'decr' ]; then
+  decrease
+elif [ $1 = 'microph' ]; then
+  microph
+fi
